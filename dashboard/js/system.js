@@ -3,7 +3,8 @@
   'use strict';
   var D = window.DATA, $ = App.$;
 
-  function img(seed, w, h) { return 'https://picsum.photos/seed/' + seed + '/' + w + '/' + h; }
+  // Same-origin proxy (api/img.js): the frame can't verify picsum's certificate.
+  function img(seed, w, h) { return '/api/img?seed=' + encodeURIComponent(seed) + '&w=' + w + '&h=' + h; }
   App.img = img;
 
   // ------------------------------------------------------------ full-screen takeovers
@@ -100,7 +101,7 @@
   App.garageOpenAlert = function () {
     App.setDevice('g-door', { state: 'open' });
     App.banner({
-      icon: 'garage', title: 'Garage open for 15 min', sub: 'No one is in the garage · Wes is 12 min away',
+      icon: 'garage', title: 'Garage open for 15 min', sub: 'No one is in the garage · Nate is 12 min away',
       action: 'Close garage', dismiss: 'Leave open',
       onAction: function () { App.openGarageSheet(); }
     });
@@ -129,7 +130,7 @@
       ['normal', 'empty', 'busy'].map(function (m) {
         return '<button data-cal="' + m + '" class="' + (App.calMode === m ? 'is-on' : '') + '">' + { normal: 'Normal day', empty: 'Empty day', busy: 'Overloaded' }[m] + '</button>';
       }).join('') + '</div></div>' +
-      '<p class="demo-note">Keyboard: <b>D</b> demo · <b>A</b> ambient · <b>N</b> night · <b>1–7</b> views</p>' +
+      '<p class="demo-note">Keyboard: <b>D</b> demo · <b>A</b> ambient · <b>N</b> night · <b>1–9</b> views</p>' +
       '</div>';
   }
   App.openDemo = function () {
@@ -175,8 +176,8 @@
       if (k === 'a') App.setMode('ambient');
       if (k === 'n') App.setMode('night');
       if (k === 'escape') { closeDemo(); App.closeSheet(); }
-      var views = ['home', 'calendar', 'tasks', 'shopping', 'photos', 'control', 'agents'];
-      if (k >= '1' && k <= '7') App.go(views[+k - 1]);
+      var views = ['home', 'week', 'schedule', 'calendar', 'tasks', 'shopping', 'photos', 'agents'];
+      if (k >= '1' && k <= '8') App.go(views[+k - 1]);
     });
   });
 })();

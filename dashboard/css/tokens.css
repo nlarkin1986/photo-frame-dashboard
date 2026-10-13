@@ -1,23 +1,45 @@
 /* Design tokens. Target: Android WebView 106 — no nesting, no color-mix(), no oklch(), no dvh. */
+
+/* DHC tools brand fonts, self-hosted from public/fonts (gitignored: licensed). If the files are
+   missing, the Google fallbacks loaded in index.html (Albert Sans, Fredoka) take over. */
+@font-face { font-family: 'New Kansas'; src: url('/fonts/NewKansas-Bold.otf') format('opentype'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Roca'; src: url('/fonts/Roca-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Houschka Rounded'; src: url('/fonts/HouschkaRounded-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Mundial'; src: url('/fonts/Mundial-Regular.otf') format('opentype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Mundial'; src: url('/fonts/Mundial-Demibold.otf') format('opentype'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Mundial'; src: url('/fonts/Mundial-Bold.otf') format('opentype'); font-weight: 700 900; font-display: swap; }
+
 :root {
-  /* paper + ink */
-  --paper: #F2EEE6;
-  --paper-2: #E8E2D5;
-  --card: #FBF9F4;
-  --ink: #111111;
-  --ink-rgb: 17 17 17;
-  --ink-2: #3B3934;
-  --mute: #7A756B;
-  --line: #D6CFC0;
+  /* paper + ink (DHC cream + navy) */
+  --paper: #FCF8ED;
+  --paper-2: #F3EDDC;
+  --card: #FFFFFF;
+  --ink: #0E385B;
+  --ink-rgb: 14 56 91;
+  --ink-2: #3E607C;
+  --mute: #6E889D;
+  --line: #E6ECFF;
+
+  /* DHC brand accents */
+  --cobalt: #578EE5;
+  --cobalt-dark: #3F74C9;
+  --cornflower: #ACD6FC;
+  --cloud: #E6ECFF;
+  --sunshine: #FED615;
+  --lemon: #FFEFAB;
+  --sprig: #B1C677;
+  --taffy: #FA9A9B;
+  --teal: #75BBBF;
+  --tangerine: #FFB98A;
 
   /* signal colours */
-  --alert: #E5261E;
-  --alert-rgb: 229 38 30;
-  --amber: #FF9500;
-  --amber-rgb: 255 149 0;
-  --ok: #00A36C;
-  --warm: #FFC45C;
-  --warm-rgb: 255 196 92;
+  --alert: #D9534F;
+  --alert-rgb: 217 83 79;
+  --amber: #FED615;
+  --amber-rgb: 254 214 21;
+  --ok: #93AA5A;
+  --warm: #FFD27A;
+  --warm-rgb: 255 210 122;
   --night: #D8321F;
 
   /* person colour defaults (overridden inline per element) */
@@ -26,8 +48,10 @@
   --c-ink: #FFFFFF;
 
   /* type */
-  --sans: 'Archivo', 'Roboto Condensed', 'Roboto', system-ui, sans-serif;
-  --serif: 'Instrument Serif', 'Noto Serif', Georgia, serif;
+  --sans: 'Mundial', 'Albert Sans', system-ui, sans-serif;
+  --serif: 'Roca', 'Fredoka', Georgia, serif;
+  --title: 'New Kansas', 'Fredoka', Georgia, serif;
+  --display: 'Houschka Rounded', 'Fredoka', 'Mundial', system-ui, sans-serif;
   --fs-clock: 150px;
   --fs-hero: 76px;
   --fs-xl: 56px;
@@ -38,11 +62,12 @@
   --fs-min: 14px;
 
   /* shape + space */
-  --r: 18px;
-  --r-s: 12px;
+  --r: 20px;
+  --r-s: 14px;
   --gap: 16px;
   --pad: 24px;
   --tap: 64px;
-  --ease: cubic-bezier(.2, .8, .2, 1);
+  --shadow: 0 1px 2px rgba(14, 56, 91, .06), 0 6px 18px rgba(14, 56, 91, .07);
+  --ease: cubic-bezier(.23, 1, .32, 1);
   --spring: cubic-bezier(.34, 1.56, .64, 1);
 }

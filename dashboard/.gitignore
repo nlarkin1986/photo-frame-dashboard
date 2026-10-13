@@ -2,3 +2,8 @@ node_modules
 dist
 .wrangler
 kiosk/build
+.vercel
+.env*
+
+# Licensed DHC brand fonts: deployed with the app, never committed to the public fork
+public/fonts

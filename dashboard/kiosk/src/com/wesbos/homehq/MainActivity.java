@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
+import android.net.http.SslError;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,6 +15,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -28,10 +31,15 @@ import android.webkit.WebViewClient;
  */
 public class MainActivity extends Activity {
   static final String TAG = "HomeHQ";
-  static final String DEFAULT_URL = "https://home-dashboard.wesbos.workers.dev/";
+  static final String DEFAULT_URL = "https://photo-frame-dashboard-three.vercel.app/#home";
+  // The dashboard URL carries a secret key, so it is set once over adb (am start -d …) and
+  // remembered here rather than built into the app.
+  static final String PREFS = "kiosk";
   static final long EXIT_HOLD_MS = 1500;
   static final long RETRY_MS = 5000;
   static final float EXIT_SLOP_PX = 60;
+  // 2026-01-01. Before NTP syncs, a frame without an RTC battery boots with its clock at 1969.
+  static final long CLOCK_SYNCED_MS = 1767225600000L;
 
   private WebView web;
   private final Handler handler = new Handler(Looper.getMainLooper());
@@ -89,11 +97,34 @@ public class MainActivity extends Activity {
         handler.removeCallbacks(retry);
         handler.postDelayed(retry, RETRY_MS);
       }
+
+      // Until the clock syncs every certificate looks expired, so retry instead of giving up.
+      // Never proceed past a certificate error.
+      @Override
+      public void onReceivedSslError(WebView view, SslErrorHandler h, SslError error) {
+        h.cancel();
+        if (System.currentTimeMillis() >= CLOCK_SYNCED_MS) {
+          Log.w(TAG, "Certificate error: " + error);
+          return;
+        }
+        Log.w(TAG, "Certificate error before clock sync, retrying in " + RETRY_MS + " ms");
+        retryUrl = startUrl(getIntent());
+        handler.removeCallbacks(retry);
+        handler.postDelayed(retry, RETRY_MS);
+      }
     });
     setContentView(web);
 
-    String url = getIntent().getDataString();
-    web.loadUrl(url != null ? url : DEFAULT_URL);
+    web.loadUrl(startUrl(getIntent()));
+  }
+
+  /** The URL an intent asks for (and remember it), or the last remembered one. */
+  private String startUrl(Intent intent) {
+    SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+    String url = intent.getDataString();
+    if (url == null) return prefs.getString("url", DEFAULT_URL);
+    prefs.edit().putString("url", url).commit();
+    return url;
   }
 
   @Override
@@ -114,10 +145,9 @@ public class MainActivity extends Activity {
     super.onNewIntent(intent);
     setIntent(intent);
     applyDebugFlag(intent);
-    String url = intent.getDataString();
-    if (url != null) {
+    if (intent.getDataString() != null) {
       handler.removeCallbacks(retry);
-      web.loadUrl(url);
+      web.loadUrl(startUrl(intent));
     }
   }
 

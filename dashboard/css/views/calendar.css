@@ -17,12 +17,12 @@
 .lanes-head { display: grid; grid-template-columns: 64px repeat(4, 1fr); flex: none; }
 .cal-3 .lanes-head { grid-template-columns: 64px repeat(3, 1fr); }
 .lane-head { display: flex; align-items: center; gap: 10px; padding: 0 12px 10px; border-bottom: 5px solid var(--c); margin: 0 4px; }
-.lane-head b { font-size: 22px; font-weight: 800; font-stretch: 80%; text-transform: uppercase; letter-spacing: .04em; }
+.lane-head b { font-size: 22px; font-family: var(--display); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
 .lane-head small { margin-left: auto; font-size: var(--fs-min); color: var(--mute); font-weight: 700; }
 .day-head { display: flex; align-items: baseline; gap: 10px; padding: 0 14px 6px; margin: 0 4px; border-bottom: 5px solid var(--ink); }
 .day-head .num { font-size: 30px; line-height: .9; }
-.day-head b { font-size: 17px; font-weight: 800; font-stretch: 80%; text-transform: uppercase; letter-spacing: .05em; }
-.day-head small { margin-left: auto; font-size: var(--fs-min); color: var(--mute); font-weight: 700; text-transform: uppercase; }
+.day-head b { font-size: 17px; font-family: var(--display); font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
+.day-head small { margin-left: auto; font-size: var(--fs-min); color: var(--mute); font-family: var(--display); font-weight: 500; text-transform: uppercase; }
 .day-head.is-today { background: var(--ink); color: var(--paper); border-radius: 12px 12px 0 0; padding-top: 8px; }
 
 .allday { display: grid; grid-template-columns: 64px 1fr; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); flex: none; }
@@ -44,12 +44,12 @@
 .hr { position: absolute; left: 64px; right: 0; border-top: 1px solid var(--line); }
 .hr span {
   position: absolute; left: -64px; width: 56px; top: -9px; text-align: right;
-  font-size: var(--fs-min); font-weight: 700; font-stretch: 80%; color: var(--mute); white-space: nowrap;
+  font-size: var(--fs-min); font-weight: 700; color: var(--mute); white-space: nowrap;
 }
 .lanes { position: absolute; left: 64px; right: 0; top: 0; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr); }
 .lanes--3 { grid-template-columns: repeat(3, 1fr); }
 .lane { position: relative; border-left: 1px solid var(--line); }
-.lane.is-today { background: rgba(17, 17, 17, .03); }
+.lane.is-today { background: rgba(14, 56, 91, .03); }
 .lane-fam { position: absolute; left: 0; right: 0; top: 0; bottom: 0; pointer-events: none; }
 .lane-fam .ev { pointer-events: auto; }
 
@@ -86,9 +86,9 @@
   background: var(--paper); color: var(--ink);
   border: 2px dashed var(--ink-2);
   align-items: center; justify-content: center; flex-direction: row; gap: 6px;
-  font-size: 24px; font-weight: 900; font-stretch: 70%;
+  font-size: 24px; font-weight: 900;
 }
-.ev--more small { font-size: var(--fs-min); text-transform: uppercase; letter-spacing: .08em; }
+.ev--more small { font-size: var(--fs-min); font-family: var(--display); font-weight: 500; text-transform: uppercase; letter-spacing: .08em; }
 
 .now-line { position: absolute; left: 64px; right: 0; height: 0; border-top: 3px solid var(--alert); z-index: 4; pointer-events: none; }
 .now-line::before { content: ''; position: absolute; left: -7px; top: -8px; width: 13px; height: 13px; border-radius: 50%; background: var(--alert); }
@@ -110,7 +110,7 @@
 .week { height: 100%; display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
 .wk-col { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .wk-head { display: flex; align-items: baseline; justify-content: space-between; padding: 6px 10px 8px; border-bottom: 5px solid var(--ink); margin-bottom: 4px; }
-.wk-head b { font-size: 18px; font-weight: 800; font-stretch: 80%; text-transform: uppercase; letter-spacing: .06em; }
+.wk-head b { font-size: 18px; font-family: var(--display); font-weight: 500; text-transform: uppercase; letter-spacing: .06em; }
 .wk-head .num { font-size: 32px; line-height: .9; }
 .wk-col.is-today .wk-head { background: var(--ink); color: var(--paper); border-radius: 12px 12px 0 0; }
 .wk-ad {
@@ -125,9 +125,9 @@
 }
 .wk-ev.is-past { opacity: .45; }
 .wk-t::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--c); margin-right: 6px; vertical-align: 1px; }
-.wk-t { font-size: var(--fs-min); font-weight: 800; font-stretch: 70%; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.wk-t { font-size: var(--fs-min); font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ink-2); }
 .wk-n { font-size: 16px; font-weight: 600; line-height: 1.15; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.wk-more { min-height: 48px; font-size: 15px; font-weight: 800; font-stretch: 75%; letter-spacing: .06em; text-transform: uppercase; text-align: left; padding: 0 10px; color: var(--ink-2); }
+.wk-more { min-height: 48px; font-size: 15px; letter-spacing: .06em; font-family: var(--display); font-weight: 500; text-transform: uppercase; text-align: left; padding: 0 10px; color: var(--ink-2); }
 .wk-free { font-size: 22px; color: var(--mute); padding: 8px 10px; }
 
 /* ---- month */
@@ -184,3 +184,5 @@
 .more-row i { width: 14px; height: 14px; border-radius: 50%; background: var(--c); }
 .more-row b { font-size: 21px; flex: 1; }
 .more-row span { font-size: 16px; color: var(--mute); }
+
+.cal-note { color: var(--mute); }

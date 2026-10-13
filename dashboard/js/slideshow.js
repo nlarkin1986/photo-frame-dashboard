@@ -6,9 +6,34 @@
   function src(p, big) {
     var w = p.o === 'p' ? 800 : 1600, h = p.o === 'p' ? 1200 : 1000;
     if (!big) { w = Math.round(w / 2); h = Math.round(h / 2); }
+    if (p.l) return big ? p.l : (p.s || p.l);   // iCloud Shared Album (our proxy URLs)
+    if (p.id) return '/api/photo?id=' + p.id + '&s=' + (big ? 'l' : 's');
     return App.img(p.seed, w, h);
   }
   App.photoSrc = src;
+
+  // Photos synced to Vercel Blob (scripts/sync-photos.mjs) replace the sample photos. Never
+  // hold up startup for long: on failure or timeout the dashboard keeps the samples.
+  var photoSig = '';
+  function fetchPhotos() {
+    return fetch('/api/photos', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (list) {
+        if (!list || !list.length) return;
+        var sig = list.length + '|' + list[0].id + '|' + list[list.length - 1].id;
+        if (sig === photoSig) return;
+        photoSig = sig;
+        D.photos.splice.apply(D.photos, [0, D.photos.length].concat(list));
+      });
+  }
+  App.loadPhotos = function () {
+    var timeout = new Promise(function (resolve) { setTimeout(resolve, 5000); });
+    return Promise.race([fetchPhotos(), timeout]).catch(function () {});
+  };
+  // The album can be slow to come up on a cold server, and photos get added: refresh the list
+  // shortly after startup and then every 15 minutes (slideshows read DATA.photos live).
+  setTimeout(function () { fetchPhotos().catch(function () {}); }, 60000);
+  setInterval(function () { fetchPhotos().catch(function () {}); }, 15 * 60 * 1000);
 
   function parseDate(p) { var a = p.date.split('-'); return new Date(+a[0], +a[1] - 1, +a[2]); }
   App.photoMeta = function (p) {
@@ -31,7 +56,7 @@
   function caption(ps, size) {
     var m = App.photoMeta(ps[0]);
     return '<div class="cap cap--' + (size || 'l') + '">' +
-      '<div class="cap-kicker">' + (m.onThisDay ? '<b>On this day</b> · ' : '') + m.kicker + ' · ' + App.esc(m.place) + '</div>' +
+      '<div class="cap-kicker">' + (m.onThisDay ? '<b>On this day</b> · ' : '') + m.kicker + (m.place ? ' · ' + App.esc(m.place) : '') + '</div>' +
       '<div class="cap-date serif">' + (ps.length > 1 ? m.monthYear : m.date) + '</div>' +
       '</div>';
   }
