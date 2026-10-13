@@ -30,6 +30,12 @@
         <category android:name="android.intent.category.LAUNCHER" />
         <category android:name="android.intent.category.DEFAULT" />
       </intent-filter>
+      <!-- Home app, so the frame opens the dashboard at boot. -->
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.HOME" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
       <intent-filter>
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />

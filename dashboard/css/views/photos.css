@@ -27,7 +27,7 @@
   background: linear-gradient(0deg, rgba(0, 0, 0, .7), rgba(0, 0, 0, 0)); pointer-events: none;
 }
 .cap { position: absolute; left: 44px; bottom: 40px; z-index: 2; color: #fff; max-width: 70%; opacity: .7; }
-.cap-kicker { font-size: 15px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.cap-kicker { font-size: 15px; letter-spacing: .12em; font-family: var(--display); font-weight: 500; text-transform: uppercase; }
 .cap-kicker b { color: var(--warm); }
 .cap-date { font-size: 88px; line-height: .95; margin-top: 8px; }
 .cap--m .cap-date { font-size: 60px; }
@@ -46,7 +46,7 @@
   height: var(--tap); min-width: var(--tap); padding: 0 17px; border-radius: 999px;
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
   background: rgba(0, 0, 0, .38);
-  font-size: 17px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+  font-size: 17px; letter-spacing: .06em; font-family: var(--display); font-weight: 500; text-transform: uppercase;
 }
 .ph-btn:active { transform: scale(.92); }
 .ph-btn--fav { padding: 0 24px 0 20px; }

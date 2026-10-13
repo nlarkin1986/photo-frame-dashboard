@@ -1,0 +1,213 @@
+/* Timer: character reveal dial on the left, setup grid or transport controls on the right.
+   DHC palette (navy ink, cream paper, sunshine go). Chrome 106: no nesting, no :has, no color-mix. */
+
+.tm { position: absolute; top: 0; right: 0; bottom: 0; left: 0; padding: 24px 32px 24px 24px; display: grid; grid-template-columns: 1fr 520px; gap: 36px; }
+
+/* ---------------------------------------------------------------- dial */
+.tm-stage { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; min-width: 0; }
+.tm-dial { position: relative; width: 560px; height: 560px; flex: none; }
+/* A static shadow disc behind the SVG, so the animating dial never re-rasterises a filter. */
+.tm-dial::before {
+  content: ''; position: absolute; left: 28px; top: 28px; right: 28px; bottom: 28px; border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(14, 56, 91, .08), 0 14px 34px rgba(14, 56, 91, .14);
+}
+.tm-dial svg { position: relative; display: block; width: 100%; height: 100%; overflow: visible; }
+.tm-outer { fill: none; stroke: #E8DCC4; stroke-width: 2; }
+.tm-disc-fill { fill: var(--cornflower); }
+.tm-ring { fill: none; stroke: var(--ink); stroke-width: 12; stroke-linecap: round; transition: opacity .2s; }
+.tm-disc { display: inline-block; border-radius: 50%; background: var(--cornflower); }
+
+.tm-friend {
+  min-height: var(--tap); padding: 6px 20px 6px 6px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 12px;
+  background: var(--card); border: 2px solid var(--ink); color: var(--ink); text-align: left;
+}
+.tm-friend:active { background: var(--cloud); }
+.tm-friend-img { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--teal); }
+.tm-friend small { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); font-family: var(--display); }
+.tm-friend b { display: block; font-size: 22px; font-weight: 700; line-height: 1.1; }
+.tm-friend .i { color: var(--ink-2); margin-left: 4px; }
+.tm-friend--sm .tm-friend-img { width: 44px; height: 44px; }
+
+/* ---------------------------------------------------------------- right panel */
+.tm-panel { display: flex; flex-direction: column; gap: 18px; min-height: 0; }
+.tm-head { display: flex; align-items: center; justify-content: space-between; min-height: var(--tap); }
+.tm-title { font-family: var(--title); font-size: 46px; line-height: 1; letter-spacing: -.01em; }
+.tm-optbtn {
+  min-height: var(--tap); padding: 0 22px 0 18px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--display); font-size: 19px; color: var(--ink); background: var(--card); border: 2px solid var(--cloud);
+}
+.tm-optbtn:active { background: var(--cloud); }
+
+/* duration grid (DurationOptionCard) */
+.tm-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 138px; gap: 12px; }
+.tm-card {
+  position: relative; border-radius: 16px; background: var(--card); border: 1px solid var(--ink);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--ink);
+}
+.tm-card b { font-size: 21px; font-weight: 600; line-height: 1.1; }
+.tm-card small { font-size: 14px; color: var(--ink-2); visibility: hidden; }
+.tm-card.is-on { background: var(--cloud); border-width: 2px; }
+.tm-card.is-on b { font-weight: 800; }
+.tm-card.is-on small { visibility: visible; }
+.tm-card:active { transform: scale(.97); }
+.tm-slice { display: block; }
+.tm-check { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; }
+
+.tm-sumrow { display: flex; align-items: center; gap: 12px; }
+.tm-sum {
+  flex: 1; min-height: var(--tap); padding: 0 20px; border-radius: 999px; background: var(--cloud);
+  display: inline-flex; align-items: center; gap: 10px; font-size: 19px; color: var(--ink);
+}
+.tm-sum b { font-weight: 700; }
+.tm-sum span { color: var(--ink-2); }
+.tm-pillbtn {
+  min-height: var(--tap); padding: 0 24px; border-radius: 999px; border: 2px solid var(--ink); background: var(--paper);
+  display: inline-flex; align-items: center; gap: 8px; font-family: var(--display); font-size: 19px; color: var(--ink);
+}
+.tm-pillbtn:active { background: var(--cloud); }
+.tm-start {
+  margin-top: auto; min-height: 96px; border-radius: 999px; background: var(--sunshine); color: var(--ink);
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  font-family: var(--display); font-size: 30px; font-weight: 500;
+  box-shadow: inset 0 -5px 0 rgba(14, 56, 91, .14);
+}
+.tm-start:active { transform: scale(.98); box-shadow: none; }
+
+/* running / paused */
+.tm-status { display: inline-flex; align-items: center; gap: 12px; font-family: var(--display); font-size: 22px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.tm-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--sprig); box-shadow: 0 0 0 4px rgba(177, 198, 119, .3); animation: tm-pulse 1.6s ease-in-out infinite; }
+.tm-dot.is-paused { background: var(--sunshine); box-shadow: 0 0 0 4px rgba(254, 214, 21, .3); animation: none; }
+@keyframes tm-pulse { 50% { opacity: .45; } }
+
+.tm-readout { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+.tm-digits {
+  font-family: var(--display); font-size: 150px; line-height: .95; letter-spacing: -.02em; color: var(--ink);
+  font-variant-numeric: tabular-nums; font-feature-settings: 'tnum';
+}
+.tm-ends { font-family: var(--serif); font-size: 34px; color: var(--ink-2); }
+.tm--paused .tm-ends { color: var(--ink); }
+
+.tm-transport { display: flex; align-items: center; justify-content: center; gap: 28px; }
+.tm-round {
+  width: 92px; height: 92px; border-radius: 50%; flex: none;
+  display: grid; place-items: center; background: var(--card); color: var(--ink); border: 2px solid var(--ink);
+  position: relative; overflow: hidden;
+}
+.tm-round:active { background: var(--cloud); }
+/* Running: navy disc, cream pause. Waiting to go: sunshine disc, navy play (C14). */
+.tm-hero {
+  width: 140px; height: 140px; border-radius: 50%; flex: none;
+  display: grid; place-items: center; background: var(--ink); color: var(--paper);
+  box-shadow: 0 10px 24px rgba(14, 56, 91, .25);
+}
+.tm-hero.is-go { background: var(--sunshine); color: var(--ink); }
+.tm-hero.is-go .i { margin-left: 6px; }
+.tm-hero .i { fill: currentColor; }
+.tm-hero:active { transform: scale(.95); }
+.tm-lock.is-on { background: var(--ink); color: var(--sunshine); }
+.tm-lock.is-holding::after {
+  content: ''; position: absolute; left: 0; bottom: 0; height: 100%; width: 100%; background: rgba(254, 214, 21, .45);
+  transform-origin: left; animation: tm-hold var(--hold) linear forwards;
+}
+@keyframes tm-hold { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.tm-adds { display: flex; justify-content: center; gap: 12px; }
+.tm-add {
+  min-height: var(--tap); min-width: 110px; padding: 0 22px; border-radius: 999px;
+  background: var(--paper); border: 2px solid var(--ink); color: var(--ink); font-size: 21px; font-weight: 700;
+}
+.tm-add:active { background: var(--cloud); }
+.tm-stop {
+  min-height: var(--tap); align-self: center; padding: 0 26px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 8px; color: var(--ink-2); font-family: var(--display); font-size: 19px;
+}
+.tm-stop:active { background: var(--cloud); }
+/* Locked: controls stay visible but read as unavailable (the lock button stays live). */
+.tm-transport.is-locked .tm-round:not(.tm-lock), .tm-transport.is-locked .tm-hero, .tm-adds.is-locked, .tm-stop.is-locked, .tm-optbtn.is-locked { opacity: .45; }
+
+/* "Timer is running" refusal note: cream on solid navy, never says how to unlock. */
+.tm-note {
+  position: absolute; left: 50%; bottom: 32px; transform: translate(-50%, 12px); opacity: 0; pointer-events: none;
+  display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 999px;
+  background: var(--ink); color: var(--paper); font-size: 19px; font-weight: 600;
+  transition: opacity .2s, transform .2s var(--ease);
+}
+.tm-note.is-in { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------------------------------------------------------------- rail pill (time left on the Timer tab) */
+.tm-rail { display: none; }
+.rail-item.tm-on > span { display: none; }
+.rail-item.tm-on .tm-rail {
+  display: block; min-width: 50px; padding: 2px 6px; border-radius: 999px;
+  background: var(--sunshine); color: var(--ink); text-align: center;
+  font: 700 14px/18px var(--sans); font-feature-settings: 'tnum', 'lnum';
+}
+.rail-item.tm-paused .tm-rail { background: var(--cloud); }
+
+/* ---------------------------------------------------------------- sheets */
+.tm-opts .tm-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 0; border-top: 2px solid var(--cloud); }
+.tm-row > div:first-child b { display: block; font-size: 22px; }
+.tm-row > div:first-child span { display: block; font-size: 16px; color: var(--ink-2); margin-top: 2px; }
+.tm-seg { display: inline-flex; flex: none; background: var(--cloud); border-radius: 999px; padding: 4px; gap: 2px; }
+.tm-seg button { min-height: 60px; padding: 0 20px; border-radius: 999px; font-family: var(--display); font-size: 18px; color: var(--ink-2); white-space: nowrap; }
+.tm-seg button.is-on { background: var(--ink); color: #fff; }
+.tm-opts-foot { font-size: 15px; color: var(--mute); margin-top: 8px; }
+
+.tm-pick-h { font-family: var(--display); font-size: 16px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); margin: 6px 0 10px; }
+.tm-pick { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px 10px; margin-bottom: 18px; }
+.tm-pick-item { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 0; border-radius: 16px; color: var(--ink); }
+.tm-pick-item img { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 3px solid transparent; }
+.tm-pick-item span { font-size: 15px; font-weight: 600; text-align: center; line-height: 1.15; }
+.tm-pick-item.is-on { background: var(--cloud); }
+.tm-pick-item.is-on img { border-color: var(--ink); }
+.tm-pick-item:active { transform: scale(.96); }
+
+.tm-steppers { display: flex; align-items: flex-end; justify-content: center; gap: 18px; margin: 8px 0 10px; }
+.tm-stepper { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.tm-stepper small { font-family: var(--display); font-size: 15px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.tm-stepper div { display: flex; align-items: center; gap: 10px; }
+.tm-stepper button { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; background: var(--card); border: 2px solid var(--ink); color: var(--ink); }
+.tm-stepper button:active { background: var(--cloud); }
+.tm-stepper b { width: 116px; text-align: center; font-family: var(--display); font-size: 80px; line-height: 1; font-variant-numeric: tabular-nums; }
+.tm-colon { font-family: var(--display); font-size: 70px; line-height: 72px; padding-bottom: 4px; }
+.tm-custom-sum { text-align: center; font-size: 22px; color: var(--ink-2); }
+.tm-btn-stop { background: var(--ink); border-color: var(--ink); }
+
+/* ---------------------------------------------------------------- celebration takeover */
+.takeover--timer { background: var(--paper); color: var(--ink); }
+.tm-cel { position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: linear-gradient(180deg, var(--paper) 0%, #F7F5E2 55%, #FFF6CF 100%); }
+.tm-confetti { position: absolute; top: 0; left: 0; width: 1280px; height: 800px; pointer-events: none; z-index: 2; }
+.tm-cel-body { position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.tm-cel-glow {
+  position: absolute; left: 50%; top: 50%; width: 760px; height: 760px; margin: -510px 0 0 -380px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(254, 214, 21, .45) 0%, rgba(255, 185, 138, .22) 38%, rgba(177, 198, 119, .08) 58%, rgba(252, 248, 237, 0) 70%);
+  pointer-events: none; animation: tm-fade .5s ease-out both;
+}
+.tm-cel-char {
+  position: relative; width: 340px; height: 340px; border-radius: 50%; padding: 0; overflow: hidden;
+  border: 7px solid #fff; box-shadow: 0 14px 36px rgba(14, 56, 91, .22), 0 0 0 3px rgba(254, 214, 21, .6);
+  animation: tm-pop .55s var(--spring) both;
+}
+.tm-cel-char img, .tm-cel-char .tm-disc { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tm-cel-char.is-pressed { animation: tm-press .25s ease-out; }
+.tm-cel-msg { position: relative; font-family: var(--title); font-size: 76px; line-height: 1; margin: 28px 0 8px; text-align: center; animation: tm-rise .45s .05s var(--ease) both; }
+.tm-cel-sub { position: relative; font-size: 22px; color: var(--ink-2); animation: tm-rise .45s .1s var(--ease) both; }
+.tm-cel-actions { position: relative; z-index: 3; display: flex; align-items: center; gap: 14px; margin-top: 30px; animation: tm-rise .45s .22s var(--ease) both; }
+.tm-cel-btn {
+  min-height: 84px; padding: 0 30px; border-radius: 999px; display: inline-flex; align-items: center; gap: 12px;
+  font-family: var(--display); font-size: 24px; color: var(--ink); background: var(--card); border: 2px solid var(--ink);
+}
+.tm-cel-btn--hi { background: var(--sunshine); border-color: var(--sunshine); }
+.tm-cel-btn--ink { background: var(--ink); border-color: var(--ink); color: #fff; }
+.tm-cel-btn:active, .tm-cel-spark:active { transform: scale(.96); }
+.tm-cel-spark { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; background: var(--card); border: 2px solid var(--cloud); color: var(--ink); }
+.tm-cel-spark .i { fill: var(--sunshine); }
+@keyframes tm-pop { from { transform: scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes tm-press { 40% { transform: scale(.92) translateY(4px); } }
+@keyframes tm-rise { from { transform: translateY(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes tm-fade { from { opacity: 0; } to { opacity: .8; } }
+@media (prefers-reduced-motion: reduce) {
+  .tm-cel-char, .tm-cel-msg, .tm-cel-sub, .tm-cel-actions, .tm-cel-glow, .tm-dot { animation: none; }
+}

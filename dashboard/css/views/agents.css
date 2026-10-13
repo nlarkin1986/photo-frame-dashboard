@@ -13,9 +13,9 @@
 .ag-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .ag-id { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .ag-swatch { width: 22px; height: 22px; border-radius: 6px; background: var(--c); flex: none; }
-.ag-id b { font-size: 28px; font-weight: 900; font-stretch: 70%; text-transform: uppercase; letter-spacing: .01em; line-height: 1; }
+.ag-id b { font-size: 28px; font-family: var(--display); font-weight: 500; text-transform: uppercase; letter-spacing: .01em; line-height: 1; }
 .ag-plan { font-size: var(--fs-min); font-weight: 700; color: var(--mute); white-space: nowrap; }
-.ag-status { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ok); white-space: nowrap; }
+.ag-status { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; letter-spacing: .08em; font-family: var(--display); font-weight: 500; text-transform: uppercase; color: var(--ok); white-space: nowrap; }
 .ag-status i { width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
 .ag-status.is-warn { color: #B45F00; }
 .ag-incident {
@@ -27,7 +27,7 @@
 
 .ag-meter { display: flex; flex-direction: column; gap: 6px; }
 .ag-meter-top { display: flex; align-items: baseline; justify-content: space-between; }
-.ag-label { font-size: 15px; font-weight: 800; font-stretch: 80%; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-2); }
+.ag-label { font-size: 15px; letter-spacing: .07em; font-family: var(--display); font-weight: 500; text-transform: uppercase; color: var(--ink-2); }
 .ag-pct { font-size: 40px; line-height: .8; }
 .ag-pct small { font-size: 20px; margin-left: 1px; }
 .ag-meter.is-hot .ag-pct { color: var(--alert); }
@@ -43,7 +43,7 @@
 .ag-foot { margin-top: auto; display: flex; align-items: flex-end; gap: 18px; padding-top: 10px; border-top: 1px solid var(--line); }
 .ag-foot > div { display: flex; flex-direction: column; }
 .ag-foot .num { font-size: 28px; line-height: .9; }
-.ag-foot small { font-size: 12px; font-weight: 700; color: var(--mute); text-transform: uppercase; letter-spacing: .06em; margin-top: 3px; white-space: nowrap; }
+.ag-foot small { font-size: 12px; color: var(--mute); font-family: var(--display); font-weight: 500; text-transform: uppercase; letter-spacing: .06em; margin-top: 3px; white-space: nowrap; }
 .ag-spark { margin-left: auto; overflow: visible; }
 .ag-spark polyline { fill: none; stroke: var(--c); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
 .ag-spark circle { fill: var(--c); }
@@ -54,13 +54,13 @@
 .ag-sum-stats { display: flex; gap: 26px; }
 .ag-sum-stats > div { display: flex; flex-direction: column; }
 .ag-sum-stats .num { font-size: 44px; line-height: .85; }
-.ag-sum-stats small { font-size: 12px; font-weight: 700; color: rgba(255, 255, 255, .6); text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; }
+.ag-sum-stats small { font-size: 12px; color: rgba(255, 255, 255, .6); font-family: var(--display); font-weight: 500; text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; }
 .ag-chart { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: end; }
 .ag-col { height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; gap: 5px; }
 .ag-stack { display: flex; flex-direction: column-reverse; gap: 2px; border-radius: 5px; overflow: hidden; min-height: 8px; }
 .ag-stack i { display: block; background: var(--c); min-height: 2px; }
 .ag-stack i[style*="#111111"] { background: #F2EEE6; }
-.ag-col span { font-size: 12px; font-weight: 800; text-align: center; color: rgba(255, 255, 255, .6); text-transform: uppercase; letter-spacing: .04em; }
+.ag-col span { font-size: 12px; text-align: center; color: rgba(255, 255, 255, .6); font-family: var(--display); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
 .ag-col.is-today span { color: #fff; }
 .ag-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; }
 .ag-legend span { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 700; color: rgba(255, 255, 255, .8); }

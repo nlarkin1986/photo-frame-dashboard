@@ -11,7 +11,7 @@
 
   function weather() {
     var w = App.weatherNow();
-    var hours = App.hourly(7);
+    var hours = App.hourly(11);
     var tmin = Math.min.apply(null, hours.map(function (h) { return h.t; }));
     var tmax = Math.max.apply(null, hours.map(function (h) { return h.t; }));
     return '<div class="h-wx-top">' +
@@ -32,7 +32,7 @@
       var sub = p.home ? 'Home' : (p.eta ? '<b>ETA ' + p.eta + ' min</b>' : p.status);
       return '<div class="h-who' + (p.home ? ' is-home' : '') + '" style="' + App.pstyle(p) + '">' +
         App.avatar(p, 36, p.home ? '' : 'avatar--away') +
-        '<span><b>' + p.name + '</b><small>' + sub + '</small></span></div>';
+        '<span><b>' + App.esc(p.name) + '</b><small>' + sub + '</small></span></div>';
     }).join('');
   }
 
@@ -40,9 +40,10 @@
     var e = App.nextEvent(), now = App.now();
     if (!e) {
       var tomorrow = App.timedOn(App.addDays(now, 1))[0];
+      var note = App.calendarNote && App.calendarNote();
       return '<div class="h-hero h-hero--empty" data-go="calendar">' +
-        '<div class="label label--light">Rest of today</div>' +
-        '<div class="h-hero-title serif">Nothing else scheduled.<br><i>Enjoy the quiet.</i></div>' +
+        '<div class="label label--light">' + (note ? App.esc(note) : 'Rest of today') + '</div>' +
+        '<div class="h-hero-title serif">' + (note ? 'No calendar yet.<br><i>Link it to see events.</i>' : 'Nothing else scheduled.<br><i>Enjoy the quiet.</i>') + '</div>' +
         (tomorrow ? '<div class="h-hero-meta">Tomorrow starts with <b>' + App.esc(tomorrow.title) + '</b> at ' + App.fmt.time(tomorrow.start) + '</div>' : '') +
         '</div>';
     }
@@ -75,7 +76,7 @@
       var list = App.timedOn(now, p.id).filter(function (e) { return e.end > now; });
       var shown = list.slice(0, 3), more = list.length - shown.length;
       return '<div class="h-lane" style="' + App.pstyle(p) + '">' +
-        '<div class="h-lane-head">' + App.avatar(p, 30) + '<b>' + p.name + '</b></div>' +
+        '<div class="h-lane-head">' + App.avatar(p, 30) + '<b>' + App.esc(p.name) + '</b></div>' +
         (list.length ? shown.map(function (e) {
           var cur = e.start <= now;
           return '<button class="h-ev' + (cur ? ' is-now' : '') + '" data-ev="' + e.id + '">' +
@@ -99,17 +100,49 @@
     var r = App.currentRoutine();
     var who = D.people.map(function (p) { return p.id; }).concat(['any']);
     return '<div class="label">Chores · ' + r.name + '</div><div class="h-rings">' + who.map(function (id) {
-      var list = D.chores.filter(function (c) { return c.r === r.id && c.who === id; });
+      var list = (App.board.chores() || D.chores).filter(function (c) { return c.r === r.id && c.who === id; });
       if (!list.length) return '';
       var done = list.filter(function (c) { return c.done; }).length;
       var p = App.person(id);
       return '<div class="h-ring' + (done === list.length ? ' is-done' : '') + '" style="' + App.pstyle(p) + '">' + ring(done, list.length, 64) +
-        '<b class="num">' + (done === list.length ? '✓' : done + '/' + list.length) + '</b><span>' + (id === 'any' ? 'Anyone' : p.name) + '</span></div>';
+        '<b class="num">' + (done === list.length ? '✓' : done + '/' + list.length) + '</b><span>' + (id === 'any' ? 'Anyone' : App.esc(p.name)) + '</span></div>';
     }).join('') + '</div>';
   }
 
+  // Schedule tile (one block per kid): replaces the chores tile once the frame is linked to the
+  // picture schedule; falls back to the chores rings otherwise.
+  function hasSchedule() {
+    var d = App.schedule && App.schedule.data;
+    return !!(App.schedUI && d && d.kids && d.kids.length);
+  }
+  function schedule() {
+    var U = App.schedUI, d = App.schedule.data;
+    var kids = d.kids.slice(0, 4);
+    return '<div class="label">Schedule · Today</div><div class="h-sched h-sched--' + kids.length + '">' + kids.map(function (k) {
+      var n = U.nowInfo(k), c = n.now || n.next;
+      var all = n.total && n.done === n.total;
+      var line = !d.planned || !n.day ? '<i>Not planned</i>'
+        : all ? '<i>All done!</i>'
+        : c ? '<small>' + (n.now ? 'Now' : 'Next') + '</small>' + App.esc(c.label || '')
+        : n.total ? '<i>Nothing left now</i>' : '<i>Free day</i>';
+      return '<div class="h-sk' + (all ? ' is-done' : '') + '" style="' + U.kidStyle(k) + '">' +
+        '<div class="h-sk-top">' + U.kidAvatar(k, 30) + '<b>' + App.esc(k.name) + '</b>' +
+        '<span class="num">' + (n.total ? n.done + '/' + n.total : '–') + '</span></div>' +
+        '<div class="h-sk-now">' + (c && !all ? '<span class="h-sk-pic' + (c.src ? ' is-photo' : '') + '">' + U.pictureHTML(c, 40) + '</span>' : '') +
+        '<span class="h-sk-l">' + line + '</span></div>' +
+        '</div>';
+    }).join('') + '</div>';
+  }
+  function kidsTile() {
+    var t = V.el.querySelector('.h-chores');
+    var on = hasSchedule();
+    t.dataset.go = on ? 'schedule' : 'tasks';
+    t.classList.toggle('h-chores--sched', on);
+    t.innerHTML = on ? schedule() : chores();
+  }
+
   function shopping() {
-    var open = D.groceries.filter(function (g) { return !g.done; });
+    var open = (App.board.groceries() || D.groceries).filter(function (g) { return !g.done && !g.suggested; });
     var recent = open.slice(-3).reverse();
     return '<div class="label">Shopping</div>' +
       '<div class="h-stat"><span class="num">' + open.length + '</span><small>items to get</small></div>' +
@@ -118,33 +151,61 @@
       }).join('') + '</ul>';
   }
 
-  function status() {
-    var lights = D.devices.filter(function (d) { return d.type === 'light' && d.on; }).length;
-    var unlocked = D.devices.filter(function (d) { return d.type === 'lock' && !d.locked; });
-    var garage = D.devices.filter(function (d) { return d.type === 'garage'; })[0];
-    var secure = !unlocked.length && garage.state === 'closed';
-    var secText = secure ? 'All locked' : (garage.state !== 'closed' ? 'Garage open' : unlocked[0].name + ' unlocked');
-    return '<div class="label">Home</div>' +
-      '<div class="h-st-row">' + App.icon('bulb', 24) + '<b class="num">' + lights + '</b><span>lights on</span></div>' +
-      '<div class="h-st-row' + (secure ? '' : ' is-warn') + '">' + App.icon(secure ? 'lock' : 'unlock', 24) + '<span>' + secText + '</span></div>' +
-      '<div class="h-st-row">' + App.icon('thermo', 24) + '<b class="num">' + D.climate.current + '°</b><span>inside</span></div>';
+  // "This week" tile (direction B): how many things need one of you, or the next settled thing,
+  // or "No weekly update yet". Never private text.
+  function week() {
+    var B = App.board, b = B.brief(), esc = App.esc;
+    var DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], DAY = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    if (!b) {
+      return '<span class="h-wk-quiet">' + (B.error === 'offline' && !B.live ? 'Offline' : 'This week') + '</span><span class="h-wk-q h-wk-q--end">No weekly update yet</span>';
+    }
+    var asks = B.openAsks();
+    if (asks.length) {
+      // "3 to decide" + the soonest question (clamped to 2 lines); the rest live on the Week view.
+      var a0 = asks[0], d0 = B.dateOf(a0.date);
+      var dd = d0 ? Math.round((d0 - App.dayStart(App.now())) / 864e5) : null;
+      var when = (dd === 0 ? 'Today' : dd === 1 ? 'Tomorrow' : d0 ? DAY[d0.getDay()] : '') + (a0.time ? ' at ' + a0.time : '');
+      return '<div class="h-wk-top"><span class="h-wk-n num">' + asks.length + '</span><span class="h-wk-say"><i class="h-wk-dot"></i>to decide this week</span></div>' +
+        '<div class="h-wk-next"><small>' + esc(when) + '</small><span class="h-wk-nq">' + esc(a0.dc.title) + '</span></div>';
+    }
+    // All decided: the next thing someone said yes to.
+    var t = B.todayIso(), next = null;
+    (b.decisions || []).forEach(function (dc) {
+      if (dc.private || dc.dismissed) return;
+      (dc.slots || []).forEach(function (s) {
+        var date = s.date || (dc.when && dc.when.date);
+        if (!s.who || !date || date < t) return;
+        if (!next || date < next.date) next = { dc: dc, slot: s, date: date };
+      });
+    });
+    if (!next) {
+      var n = B.openTodos().length;
+      return '<span class="h-wk-quiet">This week is set</span><span class="h-wk-q">Nothing needs deciding</span><div class="h-wk-list"><span>' + n + ' to-do' + (n === 1 ? '' : 's') + ' left</span></div>';
+    }
+    var nd = B.dateOf(next.date), diff = Math.round((nd - App.dayStart(App.now())) / 864e5);
+    var when = (diff === 0 ? 'today' : diff === 1 ? 'tomorrow' : DAY[nd.getDay()]) + ((next.dc.slots || []).length === 1 && next.dc.when && next.dc.when.time ? ' ' + next.dc.when.time : '');
+    var item = null;
+    (b.days || []).forEach(function (day) { (day.items || []).forEach(function (it) { if (it.decision === next.dc.id && !it.private) item = it; }); });
+    var what = item ? item.text : next.dc.title;
+    return '<span class="h-wk-quiet">This week is set</span><span class="h-wk-q">Next: ' + esc(what) + ', ' + esc(when) + '</span>' +
+      '<div class="h-wk-list"><span>' + esc(B.whoName(next.slot.who)) + (next.dc.kind === 'care' ? ' has the kids' : ' has it') + '</span></div>';
   }
+  function weekTile() { var t = V.el && V.el.querySelector('.h-week'); if (t) t.innerHTML = week(); }
 
   function paint() {
     var el = V.el;
     el.querySelector('.h-clock').innerHTML = clock();
     el.querySelector('.h-weather').innerHTML = weather();
-    el.querySelector('.h-presence').innerHTML = presence();
     el.querySelector('.h-hero-slot').innerHTML = hero();
     el.querySelector('.h-lanes').innerHTML = lanes();
-    el.querySelector('.h-chores').innerHTML = chores();
+    kidsTile();
     el.querySelector('.h-shop').innerHTML = shopping();
-    el.querySelector('.h-status').innerHTML = status();
+    weekTile();
   }
 
   function photoCaption(s) {
     var m = App.photoMeta(s.photos[0]);
-    V.el.querySelector('.h-photo-cap').innerHTML = '<b>' + (m.onThisDay ? 'On this day · ' : '') + m.kicker + '</b><span>' + App.esc(m.place) + '</span>';
+    V.el.querySelector('.h-photo-cap').innerHTML = '<b>' + (m.onThisDay ? 'On this day · ' : '') + m.kicker + '</b><span>' + App.esc(m.place || '') + '</span>';
   }
 
   App.register('home', {
@@ -154,12 +215,11 @@
         el.innerHTML = '<div class="home">' +
           '<div class="h-clock" data-go="calendar"></div>' +
           '<div class="h-weather"></div>' +
-          '<div class="h-presence"></div>' +
           '<div class="h-main"><div class="h-hero-slot"></div><div class="h-lanes" ></div></div>' +
           '<div class="h-side">' +
           '  <button class="h-photo" data-go="photos"><div class="h-photo-stage"></div><div class="h-photo-cap"></div></button>' +
           '  <button class="h-chores card" data-go="tasks"></button>' +
-          '  <div class="h-duo"><button class="h-shop card" data-go="shopping"></button><button class="h-status card" data-go="control"></button></div>' +
+          '  <div class="h-duo"><button class="h-week card" data-go="week"></button><button class="h-shop card" data-go="shopping"></button></div>' +
           '</div></div>';
         el.addEventListener('click', function (e) {
           var ev = e.target.closest('[data-ev]');
@@ -180,7 +240,27 @@
     if (!V.el || !V.el.firstChild) return;
     V.el.querySelector('.h-clock').innerHTML = clock();
     V.el.querySelector('.h-hero-slot').innerHTML = hero();
+    if (hasSchedule()) kidsTile();
+    weekTile();
     if (n.getMinutes() === 0) { V.el.querySelector('.h-weather').innerHTML = weather(); V.el.querySelector('.h-lanes').innerHTML = lanes(); }
   });
   App.on('data', function () { if (App.current === 'home') paint(); });
+  App.on('calendar', function () {
+    if (!V.el || !V.el.firstChild) return;
+    V.el.querySelector('.h-hero-slot').innerHTML = hero();
+    V.el.querySelector('.h-lanes').innerHTML = lanes();
+  });
+  App.on('weather', function () {
+    if (!V.el || !V.el.firstChild) return;
+    V.el.querySelector('.h-weather').innerHTML = weather();
+  });
+  // Board changed: the week, shopping and chores tiles only (cheap; fine while hidden too).
+  App.on('board', function () {
+    if (!V.el || !V.el.firstChild) return;
+    weekTile();
+    V.el.querySelector('.h-shop').innerHTML = shopping();
+    if (!hasSchedule()) kidsTile();
+  });
+  App.on('schedule', function () { if (V.el && V.el.firstChild) kidsTile(); });
+  App.on('schedule-tick', function () { if (V.el && V.el.firstChild) kidsTile(); });
 })();

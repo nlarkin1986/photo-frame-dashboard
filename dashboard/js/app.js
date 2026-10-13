@@ -1,4 +1,4 @@
-// Core shell: router, demo clock, idle/ambient, toasts, sheets, helpers.
+// Core shell: router, clock (real time; the demo drawer can still pin it), idle/ambient, toasts, sheets, helpers.
 (function () {
   'use strict';
   var D = window.DATA;
@@ -82,7 +82,7 @@
   App.avatar = function (p, size, cls) {
     if (typeof p === 'string') p = App.person(p);
     size = size || 48;
-    return '<span class="avatar ' + (cls || '') + '" style="' + App.pstyle(p) + ';width:' + size + 'px;height:' + size + 'px;font-size:' + Math.round(size * 0.46) + 'px">' + (p.id === 'family' ? '★' : p.name[0]) + '</span>';
+    return '<span class="avatar ' + (cls || '') + '" style="' + App.pstyle(p) + ';width:' + size + 'px;height:' + size + 'px;font-size:' + Math.round(size * 0.46) + 'px">' + (p.id === 'family' ? '★' : App.esc(String(p.name || '?').charAt(0))) + '</span>';
   };
   App.dots = function (ids, size) {
     return '<span class="dots">' + ids.map(function (id) { return '<i style="' + App.pstyle(id) + (size ? ';width:' + size + 'px;height:' + size + 'px' : '') + '"></i>'; }).join('') + '</span>';
@@ -128,25 +128,28 @@
     for (var i = 0; i < D.routines.length; i++) if (h >= D.routines[i].from && h < D.routines[i].to) return D.routines[i];
     return D.routines[2];
   };
+  // Current weather for the views (°F). Live data (js/weather-data.js) carries the current reading
+  // and a server-written summary/advice; the offline mock derives them here.
+  var WX_LABELS = { sun: 'Sunny', moon: 'Clear', partly: 'Partly cloudy', cloud: 'Overcast', rain: 'Rain', snow: 'Snow', storm: 'Storms', fog: 'Fog' };
   App.weatherNow = function () {
     var W = D.weather, h = App.now().getHours();
-    var rainAt = -1;
-    for (var i = h; i < 24; i++) if (W.p[i] >= 50) { rainAt = i; break; }
-    var summary, advice;
-    if (rainAt === h) {
-      var stop = h; while (stop < 24 && W.p[stop] >= 50) stop++;
-      summary = 'Rain until ' + App.fmt.hour(new Date(2000, 0, 1, stop));
-      advice = 'Umbrella weather';
-    } else if (rainAt > -1) {
-      summary = 'Rain from ' + App.fmt.hour(new Date(2000, 0, 1, rainAt));
-      var soccer = App.timedOn(App.now()).filter(function (e) { return /soccer/i.test(e.title) && e.start > App.now(); })[0];
-      advice = soccer ? 'Pack a rain jacket for soccer' : 'Grab a rain jacket';
-    } else {
-      summary = W.t[h] < 12 ? 'Clear and cool' : 'Dry all day';
-      advice = W.t[h] < 12 ? 'Jacket weather' : 'Light layers';
+    var live = W.now && W.now.hour === h;
+    var temp = live ? W.now.temp : W.t[h], cond = live ? W.now.cond : W.c[h];
+    var summary = W.summary, advice = W.advice;
+    if (!summary) {
+      var rainAt = -1;
+      for (var i = h; i < 24; i++) if (W.p[i] >= 50) { rainAt = i; break; }
+      if (rainAt === h) {
+        var stop = h; while (stop < 24 && W.p[stop] >= 50) stop++;
+        summary = 'Rain until ' + App.fmt.hour(new Date(2000, 0, 1, stop)); advice = 'Umbrella weather';
+      } else if (rainAt > -1) {
+        summary = 'Rain from ' + App.fmt.hour(new Date(2000, 0, 1, rainAt)); advice = 'Grab a rain jacket';
+      } else {
+        summary = temp < 54 ? 'Clear and cool' : 'Dry all day'; advice = temp < 54 ? 'Jacket weather' : 'Light layers';
+      }
     }
-    var labels = { sun: 'Sunny', moon: 'Clear', partly: 'Partly cloudy', cloud: 'Overcast', rain: 'Rain' };
-    return { temp: W.t[h], cond: W.c[h], label: labels[W.c[h]], hi: W.hi, lo: W.lo, summary: summary, advice: advice, hour: h };
+    summary = String(summary).replace(/\.$/, ''); advice = String(advice || '').replace(/\.$/, '');
+    return { temp: temp, cond: cond, label: WX_LABELS[cond] || 'Weather', hi: W.hi, lo: W.lo, summary: summary, advice: advice, hour: h };
   };
   App.hourly = function (count) {
     var W = D.weather, h = App.now().getHours(), out = [];
@@ -208,6 +211,14 @@
     Object.keys(App.views).forEach(function (k) { if (k !== App.current) App.views[k]._dirty = true; });
     refreshStale(1500);
   }
+  // Mark one view stale (e.g. after its own data arrived) without touching the others. A hidden
+  // view is rebuilt in the background; the view on screen repaints itself.
+  App.markDirty = function (name) {
+    var v = App.views[name];
+    if (!v) return;
+    v._dirty = true;
+    if (name !== App.current) refreshStale(1500);
+  };
   App.on('data', markStale);
   App.on('time', markStale);
   App.rerender = function () {
@@ -327,7 +338,6 @@
 
   // ------------------------------------------------------------ boot
   App.start = function () {
-    App.setTime(15, 18); // demo default: a busy weekday afternoon
     fit();
     window.addEventListener('resize', fit);
     // Switch tabs the instant a finger lands (pointerdown), not on release. Keyboard "clicks"
@@ -347,7 +357,6 @@
     setInterval(tick, 1000);
     App.emit('ready');
     refreshStale(1500);
-    setTimeout(function () { App.toast('Tip: press and hold the <b>clock</b> in the sidebar for demo controls', { ms: 6000, icon: 'bolt' }); }, 1200);
   };
-  document.addEventListener('DOMContentLoaded', function () { App.start(); });
+  document.addEventListener('DOMContentLoaded', function () { Promise.all([App.loadPhotos(), App.loadSchedule ? App.loadSchedule() : null, App.loadBoard ? App.loadBoard() : null, App.loadWeather ? App.loadWeather() : null, App.loadCalendar ? App.loadCalendar() : null]).then(App.start, App.start); });
 })();

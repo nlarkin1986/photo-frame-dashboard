@@ -16,6 +16,20 @@
   font-size: 20px; font-weight: 700;
 }
 .amb-next i { width: 12px; height: 12px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px #fff; }
+.amb-sched {
+  display: inline-flex; align-items: center; gap: 22px; height: 52px; padding: 0 22px; border-radius: 999px;
+  background: rgba(0, 0, 0, .35); font-size: 20px; white-space: nowrap; max-width: 760px; overflow: hidden;
+}
+.amb-sched span { display: inline-flex; align-items: center; gap: 8px; }
+.amb-sched i { width: 12px; height: 12px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px #fff; }
+.amb-sched b { font-weight: 800; }
+.amb-week {
+  display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 22px; border-radius: 999px;
+  background: rgba(0, 0, 0, .35); font-size: 20px; white-space: nowrap; max-width: 760px; overflow: hidden; text-overflow: ellipsis;
+}
+.amb-week i { width: 12px; height: 12px; border-radius: 50%; background: var(--alert); box-shadow: 0 0 0 2px #fff; flex: none; }
+.amb-week span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.amb-week b { font-weight: 800; }
 .amb-who { display: flex; gap: 8px; }
 .amb-who .avatar--away { background: rgba(0, 0, 0, .3); }
 
@@ -26,4 +40,4 @@
 .nt-time { font-size: 260px; line-height: .8; letter-spacing: -.04em; color: #C22C1C; }
 .nt-line { margin-top: 34px; font-size: 26px; display: flex; align-items: center; justify-content: center; gap: 10px; color: #A02618; }
 .nt-line b { color: #C22C1C; }
-.nt-lock { margin-top: 18px; font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #7A1D12; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.nt-lock { margin-top: 18px; font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #7A1D12; letter-spacing: .08em; font-family: var(--display); font-weight: 500; text-transform: uppercase; }
